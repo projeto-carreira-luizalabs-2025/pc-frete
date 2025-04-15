@@ -1,6 +1,6 @@
 # 🚚 pc-frete  
 
-# 📦 Projeto de Frete para E-commerce
+## 📦 Projeto de Frete para E-commerce
 Este projeto tem como objetivo representar **a parte de frete** dentro de um sistema de e-commerce. Ele simula a lógica envolvida no cálculo, exibição e gerenciamento do frete de produtos em uma loja virtual.
 
 ## 🎯 Objetivo
