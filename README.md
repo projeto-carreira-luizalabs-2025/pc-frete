@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚚 pc-frete  
 
 ## 📦 Projeto de Frete para E-commerce
@@ -96,3 +97,9 @@ O projeto está aberto a contribuições e atualizações da comunidade. O proce
 ## 👍 Merge Requests
 
 - Fluxo de desenvolvimento e entrega contínua documentado no Kanban.
+=======
+# pc-boleirplate-python
+
+Projeto base para iniciarmos nossos projetos em Python.
+
+>>>>>>> bbda506 (docs: documentacao)
