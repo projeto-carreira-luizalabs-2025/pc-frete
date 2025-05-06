@@ -16,7 +16,7 @@ Construir um módulo independente que lida com tudo relacionado ao frete de pedi
 ## 💻 Tecnologias
 Este projeto foi construído usando várias tecnologias chaves para garantir performance, segurança e facilidade de uso:
 
-* **Python 3.12**: Escolhido por sua simplicidade e poderosas capacidades de programação. A versão 3.13 é a mais recente, oferecendo melhorias significativas em eficiência e recursos linguísticos.
+* **Python 3.12**: Escolhido por sua simplicidade e poderosas capacidades de programação.
 * **FastAPI**: Uma moderna e rápida (altas performances) web framework para Python, que é ideal para a construção de APIs.
 * Uvicorn: Utilizado para rodar aplicações web assíncronas em Python.
 * Make: (Automação de tarefas no Linux)
