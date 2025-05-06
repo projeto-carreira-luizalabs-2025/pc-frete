@@ -26,9 +26,9 @@ Este projeto foi construído usando várias tecnologias chaves para garantir per
 
 git clone https://github.com/projeto-carreira-luizalabs-2025/pc-frete
 
-## ✨ Configuração do ambiente local
+## ✨ Configuração do ambiente local (Linux 🐧).
 
-Todos os comandos e instrucoes de instalacao serão via terminal (Linux 🐧).
+Todos os comandos serão via terminal.
 
 Depois de clonar o projeto, acesse o diretório:
 
