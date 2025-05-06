@@ -24,7 +24,9 @@ Este projeto foi construído usando várias tecnologias chaves para garantir per
 
 ## 📦 Clonando o Repositório
 
+```sh
 git clone https://github.com/projeto-carreira-luizalabs-2025/pc-frete
+```
 
 ## ✨ Configuração do ambiente local (Linux 🐧)
 
