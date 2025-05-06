@@ -46,7 +46,7 @@ make build-venv
 Uma vez criado o ambiente virtual do Python, você precisa ativá-lo
 
 ```sh
-./venv/bin/activate
+source venv/bin/activate
 ```
 
 Quaisquer comandos daqui para frente, iremos considerar que você está dentro
@@ -69,7 +69,7 @@ make lint
 
 1️⃣ Configure o arquivo de env:
 ```bash
-$ cp devtools/dotenv.dev .env
+cp devtools/dotenv.dev .env
 ```
 
 2️⃣ Rodar a API
