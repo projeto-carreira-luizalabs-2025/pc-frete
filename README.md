@@ -26,7 +26,7 @@ Este projeto foi construído usando várias tecnologias chaves para garantir per
 
 git clone https://github.com/projeto-carreira-luizalabs-2025/pc-frete
 
-## ✨ Configuração do ambiente local (Linux 🐧).
+## ✨ Configuração do ambiente local (Linux 🐧)
 
 Todos os comandos serão via terminal.
 
@@ -41,8 +41,6 @@ para instalar as bibliotecas e trabalharmos com o projeto:
 
 ```sh
 make build-venv
-# Ou:
-# python3.12 -m venv venv
 ```
 
 Uma vez criado o ambiente virtual do Python, você precisa ativá-lo
@@ -64,7 +62,7 @@ make requirements-dev
 
 Para executar a validação do lint, execute:
 ```bash
-$ make lint
+make lint
 ```
 
 ## ▶️ Execução
@@ -76,9 +74,7 @@ $ cp devtools/dotenv.dev .env
 
 2️⃣ Rodar a API
 ```bash
-$ make run-dev
-# ou, se preferir executar manualmente:
-# uvicorn app.api_main:app --reload
+make run-dev
 ```
 ## Acesse a documentação da API:
 - Swagger UI: http://localhost:8000/api/docs
