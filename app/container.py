@@ -1,9 +1,8 @@
 from dependency_injector import containers, providers
 
-from app.repositories import SomethingRepository
-from app.services import HealthCheckService, SomethingService
+from app.repositories import FreteRepository
+from app.services import HealthCheckService, FreteService
 from app.settings import AppSettings
-
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -11,11 +10,11 @@ class Container(containers.DeclarativeContainer):
     settings = providers.Singleton(AppSettings)
 
     # Repositórios
-    something_repository = providers.Singleton(SomethingRepository)
+    frete_repository = providers.Singleton(FreteRepository)
 
     # Serviços
     health_check_service = providers.Singleton(
         HealthCheckService, checkers=config.health_check_checkers, settings=settings
     )
 
-    something_service = providers.Singleton(SomethingService, repository=something_repository)
+    frete_service = providers.Singleton(FreteService, repository=frete_repository)
