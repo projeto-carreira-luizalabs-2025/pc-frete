@@ -5,13 +5,14 @@ from fastapi import APIRouter, Depends, FastAPI
 from starlette import status
 
 from app.container import Container
+from app.settings import settings
 
 if TYPE_CHECKING:
     from app.settings import AppSettings
 
 
 def add_health_check_router(app: FastAPI, prefix: str = "/api") -> None:
-    health_router = APIRouter(prefix=prefix, tags=["Saúde da Aplicação"])
+    health_router = APIRouter(prefix=prefix, tags=["Saúde do Serviço de Fretes"])
 
     @health_router.get(
         "/ping",
@@ -23,8 +24,8 @@ def add_health_check_router(app: FastAPI, prefix: str = "/api") -> None:
     @health_router.head(
         "/ping",
         operation_id="head_ping",
-        name="Verificar acessibilidade da aplicação",
-        description="Verifica se a aplicação está acessível",
+        name="Verificar acessibilidade do serviço de fretes",
+        description="Verifica se o serviço de gerenciamento de fretes está acessível",
         status_code=status.HTTP_204_NO_CONTENT,
     )
     async def ping():
@@ -33,11 +34,11 @@ def add_health_check_router(app: FastAPI, prefix: str = "/api") -> None:
 
     @health_router.get(
         path="/health",
-        summary="Health Check",
+        summary="Health Check do serviço de fretes",
         include_in_schema=True,
         operation_id="get_health",
-        name="Verificar saúde da aplicação",
-        description="Verifica se a aplicação está operante bem como seus recursos",
+        name="Verificar saúde do serviço de fretes",
+        description="Verifica se o serviço de gerenciamento de preços está operante bem como seus recursos",
         status_code=200,
     )
     @inject
@@ -45,6 +46,10 @@ def add_health_check_router(app: FastAPI, prefix: str = "/api") -> None:
         settings: "AppSettings" = Depends(Provide[Container.settings]),
     ):
         # XXX Fixado.
-        return {"version": settings.version}
+        return {
+            "version": settings.version,
+            "name": settings.app_name,
+            "service": "Gerenciamento de Fretes do Marketplace",
+        }
 
     app.include_router(health_router)
