@@ -19,11 +19,12 @@ class FreteRepository(AsyncMemoryRepository[Frete, UUID]):
 
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
         """
-        Busca um preço pela junção de seller_id + sku
+        Busca um frete pela junção de seller_id + sku
         """
-
-        result = next((frete for frete in self.memory if frete.seller_id == seller_id and frete.sku == sku), None)
-
+        result = next(
+            (frete for frete in self.memory if frete["seller_id"] == seller_id and frete["sku"] == sku),
+            None
+        )
         return result
 
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku:str):
@@ -32,7 +33,7 @@ class FreteRepository(AsyncMemoryRepository[Frete, UUID]):
         """
         self.memory = [
             frete for frete in self.memory 
-            if not (frete.seller_id == seller_id and frete.sku == sku)
+            if not (frete["seller_id"] == seller_id and frete["sku"] == sku)
         ]
 
 __all__ = ["FreteRepository"]
