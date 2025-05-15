@@ -1,1 +1,1 @@
-SOMETHING_PREFIX = "/somethings"
+FRETE_PREFIX = "/fretes"
