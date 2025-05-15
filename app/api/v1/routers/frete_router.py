@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import HTTPException, APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.common.schemas import ListResponse, Paginator, UuidType, get_request_pagination
 from app.container import Container
@@ -59,6 +59,7 @@ async def get_by_seller_id_and_sku(
 async def create(frete: FreteCreate, frete_service: "FreteService" = Depends(Provide[Container.frete_service])):
     return await frete_service.create_frete(frete)
 
+
 @router.delete(
     "/{seller_id}/{sku}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -66,8 +67,6 @@ async def create(frete: FreteCreate, frete_service: "FreteService" = Depends(Pro
 )
 @inject
 async def delete_by_seller_id_and_sku(
-    seller_id: str,
-    sku: str,
-    frete_service: "FreteService" = Depends(Provide[Container.frete_service])
+    seller_id: str, sku: str, frete_service: "FreteService" = Depends(Provide[Container.frete_service])
 ):
     await frete_service.delete_by_seller_id_and_sku(seller_id, sku)

@@ -21,19 +21,14 @@ class FreteRepository(AsyncMemoryRepository[Frete, UUID]):
         """
         Busca um frete pela junção de seller_id + sku
         """
-        result = next(
-            (frete for frete in self.memory if frete["seller_id"] == seller_id and frete["sku"] == sku),
-            None
-        )
+        result = next((frete for frete in self.memory if frete["seller_id"] == seller_id and frete["sku"] == sku), None)
         return result
 
-    async def delete_by_seller_id_and_sku(self, seller_id: str, sku:str):
+    async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str):
         """
         Remove um frete da memória com base no ID.
         """
-        self.memory = [
-            frete for frete in self.memory 
-            if not (frete["seller_id"] == seller_id and frete["sku"] == sku)
-        ]
+        self.memory = [frete for frete in self.memory if not (frete["seller_id"] == seller_id and frete["sku"] == sku)]
+
 
 __all__ = ["FreteRepository"]

@@ -1,11 +1,10 @@
 from uuid import UUID
 
+from ..api.common.schemas.response import ErrorDetail
+from ..common.exceptions import BadRequestException, NotFoundException
 from ..models import Frete
 from ..repositories import FreteRepository
 from .base import CrudService
-
-from ..common.exceptions import BadRequestException, NotFoundException
-from ..api.common.schemas.response import ErrorDetail
 
 
 class FreteService(CrudService[Frete, UUID]):
@@ -112,15 +111,17 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises NotFoundException: Sempre.
         """
-        raise NotFoundException(details=[
-            ErrorDetail(
-                message="Frete para produto não encontrado.",
-                location="path",
-                slug="frete_nao_encontrado",
-                field="sku",
-                ctx={"seller_id": seller_id, "sku": sku}
-            )
-        ])
+        raise NotFoundException(
+            details=[
+                ErrorDetail(
+                    message="Frete para produto não encontrado.",
+                    location="path",
+                    slug="frete_nao_encontrado",
+                    field="sku",
+                    ctx={"seller_id": seller_id, "sku": sku},
+                )
+            ]
+        )
 
     def _raise_bad_request(self, message: str, field: str):
         """
@@ -130,11 +131,6 @@ class FreteService(CrudService[Frete, UUID]):
         :param field: Campo relacionado ao erro.
         :raises BadRequestException: Sempre.
         """
-        raise BadRequestException(details=[
-            ErrorDetail(
-                message=message,
-                location="body",
-                slug="frete_invalido",
-                field=field
-            )
-        ])
+        raise BadRequestException(
+            details=[ErrorDetail(message=message, location="body", slug="frete_invalido", field=field)]
+        )

@@ -1,10 +1,10 @@
-from app.models import Frete 
-
 from dependency_injector import containers, providers
 
+from app.models import Frete
 from app.repositories import FreteRepository
-from app.services import HealthCheckService, FreteService
+from app.services import FreteService, HealthCheckService
 from app.settings import AppSettings
+
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -12,11 +12,7 @@ class Container(containers.DeclarativeContainer):
     settings = providers.Singleton(AppSettings)
 
     # Repositórios
-    frete_repository = providers.Singleton(
-        FreteRepository,
-        key_name="id",
-        model_class=Frete
-    )
+    frete_repository = providers.Singleton(FreteRepository, key_name="id", model_class=Frete)
 
     # Serviços
     health_check_service = providers.Singleton(
