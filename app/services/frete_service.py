@@ -51,22 +51,22 @@ class FreteService(CrudService[Frete, UUID]):
         frete = Frete(**frete_create.model_dump())
         return await self.create(frete)
 
-    # async def update_frete(self, seller_id: str, sku: str, frete_update) -> Frete:
-    #     """
-    #     Atualiza um frete existente com novo valor.
+    async def update_frete_value(self, seller_id: str, sku: str, frete_update: FreteUpdate) -> Frete:
+        """
+        Atualiza um frete existente com novo valor.
 
-    #     :param seller_id: Identificador do vendedor.
-    #     :param sku: Código do produto.
-    #     :param frete_update: Objeto contendo os novos dados do frete.
-    #     :return: Instância de Frete atualizada.
-    #     :raises NotFoundException: Se não encontrar o frete.
-    #     :raises BadRequestException: Se valores inválidos forem informados.
-    #     """
-    #     frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
-    #     if frete_encontrado is None:
-    #         self._raise_not_found(seller_id, sku)
-    #     self._validate_fretes_positivos(frete_update)
-    #     return await self.update(frete_encontrado.id, frete_update)
+        :param seller_id: Identificador do vendedor.
+        :param sku: Código do produto.
+        :param frete_update: Objeto contendo o novo valor do frete.
+        :return: Instância de Frete atualizada.
+        :raises NotFoundException: Se não encontrar o frete.
+        :raises BadRequestException: Se valores inválidos forem informados.
+        """
+        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        if frete_encontrado is None:
+            self._raise_not_found(seller_id, sku)
+        self._validate_fretes_positivos(frete_update)
+        return await self.update(frete_encontrado.id, {"valor_frete": frete_update.novo_valor_frete})
 
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str):
         """

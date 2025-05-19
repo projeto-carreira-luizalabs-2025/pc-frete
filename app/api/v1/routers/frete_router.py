@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.common.schemas import ListResponse, Paginator, UuidType, get_request_pagination
 from app.container import Container
 
-from ..schemas.frete_schema import FreteCreate, FreteResponse
+from ..schemas.frete_schema import FreteCreate, FreteResponse, FreteUpdate
 from . import FRETE_PREFIX
 
 if TYPE_CHECKING:
@@ -59,6 +59,21 @@ async def get_by_seller_id_and_sku(
 async def create(frete: FreteCreate, frete_service: "FreteService" = Depends(Provide[Container.frete_service])):
     return await frete_service.create_frete(frete)
 
+
+@router.patch(
+    "/{seller_id}/{sku}",
+    response_model=FreteResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Atualizar um frete para um produto",
+)
+@inject
+async def update_frete_value(
+    seller_id: str,
+    sku: str,
+    frete_update: FreteUpdate,
+    frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
+):
+    return await frete_service.update_frete_value(seller_id, sku, frete_update)
 
 @router.delete(
     "/{seller_id}/{sku}",

@@ -12,4 +12,8 @@ class FreteResponse(FreteSchema, ResponseEntity):
 
 
 class FreteCreate(FreteSchema):
-    """Schema para criação Fretes"""
+    """Schema para criação de Fretes"""
+
+class FreteUpdate(FreteSchema):
+    """Schema para atualização de Fretes"""
+    novo_valor_frete: int
