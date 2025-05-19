@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
-from app.api.common.schemas import ListResponse, Paginator, UuidType, get_request_pagination
+from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
 from app.container import Container
 
 from ..schemas.frete_schema import FreteCreate, FreteResponse, FreteUpdate
@@ -25,10 +25,13 @@ router = APIRouter(prefix=FRETE_PREFIX, tags=["Fretes"])
 @inject
 async def get(
     paginator: Paginator = Depends(get_request_pagination),
+    seller_id: Optional[str] = None,
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
-    results = await frete_service.find(paginator=paginator, filters={})
-
+    filters = {}
+    if seller_id:
+        filters["seller_id"] = seller_id
+    results = await frete_service.find_all(paginator=paginator, filters=filters)
     return paginator.paginate(results=results)
 
 
@@ -59,12 +62,12 @@ async def get_by_seller_id_and_sku(
 async def create(frete: FreteCreate, frete_service: "FreteService" = Depends(Provide[Container.frete_service])):
     return await frete_service.create_frete(frete)
 
-
+# Atualiza o valor do frete para um produto
 @router.patch(
     "/{seller_id}/{sku}",
     response_model=FreteResponse,
     status_code=status.HTTP_200_OK,
-    summary="Atualizar um frete para um produto",
+    summary="Atualizar o valor do frete para um produto",
 )
 @inject
 async def update_frete_value(
@@ -78,7 +81,7 @@ async def update_frete_value(
 @router.delete(
     "/{seller_id}/{sku}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Excluir precificação por seller_id e sku",
+    summary="Excluir frete por seller_id e sku",
 )
 @inject
 async def delete_by_seller_id_and_sku(

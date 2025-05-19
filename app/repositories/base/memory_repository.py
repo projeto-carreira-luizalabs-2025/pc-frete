@@ -52,15 +52,17 @@ class AsyncMemoryRepository(AsyncCrudRepository[T, ID], Generic[T, ID]):
         return result_list
 
     async def update(self, entity_id: ID, entity: Any) -> T:
-        # XXX Chave fixada por somehting, ajustar depois.
-        entity_dict = entity.model_dump(by_alias=True, exclude={"identity"})
+        # Converte a entidade para dicionário, mantendo os aliases
+        entity_dict = entity.model_dump(by_alias=True, exclude={"identity"}) if hasattr(entity, 'model_dump') else dict(entity)
         entity_dict["updated_at"] = utcnow()
 
-        current_document = await self.find_by_id(entity_id)
-
-        if current_document:
-            # TODO XXX Atualizar os dados
-            return self.model_class(**current_document)
+        for index, doc in enumerate(self.memory):
+            # Usa a chave correta (_id) para encontrar o documento
+            if str(doc.get("_id")) == str(entity_id):
+                # Atualiza o documento existente com os novos valores
+                self.memory[index].update(entity_dict)
+                # Retorna o documento atualizado como uma instância do modelo
+                return self.model_class(**self.memory[index])
         return None
 
     async def delete_by_id(self, entity_id: ID) -> bool:

@@ -5,7 +5,7 @@ from ..common.exceptions import BadRequestException, NotFoundException
 from ..models import Frete
 from ..repositories import FreteRepository
 from .base import CrudService
-
+from ..api.common.schemas import Paginator
 
 class FreteService(CrudService[Frete, UUID]):
     """
@@ -23,6 +23,16 @@ class FreteService(CrudService[Frete, UUID]):
         """
         super().__init__(repository)
 
+    async def find_all(self, paginator: Paginator, filters: dict) -> list[Frete]:
+        """
+        Busca todos os fretes com paginação e filtros.
+
+        :param paginator: Objeto de paginação para controlar os resultados.
+        :param filters: Dicionário de filtros para aplicar na busca (seller_id).
+        :return: Lista de instâncias de Frete encontradas.
+        """
+        return await self.repository.find_all(paginator=paginator, filters=filters)
+    
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
         """
         Busca um fretes pelo seller_id e sku.
@@ -51,7 +61,7 @@ class FreteService(CrudService[Frete, UUID]):
         frete = Frete(**frete_create.model_dump())
         return await self.create(frete)
 
-    async def update_frete_value(self, seller_id: str, sku: str, frete_update: FreteUpdate) -> Frete:
+    async def update_frete_value(self, seller_id: str, sku: str, frete_update) -> Frete:
         """
         Atualiza um frete existente com novo valor.
 
@@ -62,11 +72,18 @@ class FreteService(CrudService[Frete, UUID]):
         :raises NotFoundException: Se não encontrar o frete.
         :raises BadRequestException: Se valores inválidos forem informados.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
-        if frete_encontrado is None:
-            self._raise_not_found(seller_id, sku)
+        frete_existente = await self.find_by_seller_id_and_sku(seller_id, sku)
         self._validate_fretes_positivos(frete_update)
-        return await self.update(frete_encontrado.id, {"valor_frete": frete_update.novo_valor_frete})
+    
+        # Cria um dicionário com apenas o campo a ser atualizado
+        frete_atualizado = {
+            "seller_id": seller_id,
+            "sku": sku,
+            "valor_frete": frete_update.novo_valor_frete
+        }
+        
+        # Usa o ID do dicionário
+        return await self.update(frete_existente["_id"], frete_atualizado)
 
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str):
         """
@@ -88,7 +105,12 @@ class FreteService(CrudService[Frete, UUID]):
         :param frete: Objeto de frete a ser validado.
         :raises BadRequestException: Se o valor do frete for menor que zero.
         """
-        if frete.valor_frete < 0:
+        valor = getattr(frete, 'novo_valor_frete', getattr(frete, 'valor_frete', None))
+    
+        if valor is None:
+            self._raise_bad_request("Valor do frete não especificado.", "valor_frete")
+            
+        if valor < 0:
             self._raise_bad_request("frete deve ser maior que zero.", "valor_frete")
 
     async def _validate_frete_nao_existe(self, seller_id: str, sku: str):
