@@ -98,16 +98,17 @@ make lint
    sudo docker-compose -f ./devtools/docker/docker-compose-sonar.yml up
    ```
 
-2. Acesse o SonarQube em: [http://localhost:9000](http://localhost:9000)
-   Crie um **token de autenticação** no seu perfil.
+2. Acesse o SonarQube em: [http://localhost:9000](http://localhost:9000) com login admin e senha admin:
 
-3. Copie o token gerado e adicione no arquivo `sonar-project.properties`:
+4. Crie um **token de autenticação** no seu perfil. http://localhost:9000/account/security
+
+5. Copie o token gerado e adicione no arquivo `sonar-project.properties`:
 
    ```properties
    sonar.login=<seu_token_aqui>
    ```
 
-4. Instale o SonarScanner CLI manualmente:
+6. Instale o SonarScanner CLI manualmente:
 
    ```bash
    wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
