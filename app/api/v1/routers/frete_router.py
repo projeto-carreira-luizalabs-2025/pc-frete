@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 router = APIRouter(prefix=FRETE_PREFIX, tags=["Fretes"])
 
-
+# Busca todos os fretes
 @router.get(
     "",
     response_model=ListResponse[FreteResponse],
@@ -34,7 +34,6 @@ async def get(
     results = await frete_service.find_all(paginator=paginator, filters=filters)
     return paginator.paginate(results=results)
 
-
 # Busca fretes por "seller_id" e "sku"
 @router.get(
     "/{seller_id}/{sku}",
@@ -49,7 +48,6 @@ async def get_by_seller_id_and_sku(
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
     return await frete_service.find_by_seller_id_and_sku(seller_id=seller_id, sku=sku)
-
 
 # Cria um frete para um produto
 @router.post(
@@ -78,6 +76,7 @@ async def update_frete_value(
 ):
     return await frete_service.update_frete_value(seller_id, sku, frete_update)
 
+# Deleta o frete de um produto
 @router.delete(
     "/{seller_id}/{sku}",
     status_code=status.HTTP_204_NO_CONTENT,

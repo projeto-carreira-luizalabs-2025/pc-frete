@@ -29,7 +29,6 @@ class AsyncMemoryRepository(AsyncCrudRepository[T, ID], Generic[T, ID]):
         return entity
 
     async def find_by_id(self, entity_id: ID) -> Optional[T]:
-        # XXX Lembrar que elementos da memória são dicionionários
         result = next((r for r in self.memory if r.get(self.key_name) == entity_id), None)
         if result is not None:
             result = self.model_class(**result)
@@ -45,11 +44,24 @@ class AsyncMemoryRepository(AsyncCrudRepository[T, ID], Generic[T, ID]):
         return True
 
     async def find(self, filters: dict, limit: int = 10, offset: int = 0, sort: Optional[dict] = None) -> List[T]:
-        filtered_list = [data for data in self.memory if self._can_filter(data, filters)]
+        # Aplica os filtros nos dados em memória
+        results = [item for item in self.memory if self._can_filter(item, filters)]
 
-        # XXX TODO Falta ordenar
-        result_list = [self.model_class(**register) for register in filtered_list]
-        return result_list
+        if sort:
+            # Remove espaços extras nas chaves de ordenação
+            cleaned_sort = {k.strip(): v for k, v in sort.items()}
+
+            for key, order in reversed(list(cleaned_sort.items())):
+                descending = order == -1
+                # Garante que o campo existe antes de ordenar
+                results = [r for r in results if r.get(key) is not None]
+                results = sorted(results, key=lambda r: r.get(key), reverse=descending)
+
+        # Aplica a paginação
+        sliced = results[offset : offset + limit]
+
+        # Converte os dicionários em instâncias da model_class
+        return [self.model_class(**entry) for entry in sliced]
 
     async def update(self, entity_id: ID, entity: Any) -> T:
         # Converte a entidade para dicionário, mantendo os aliases
@@ -67,6 +79,19 @@ class AsyncMemoryRepository(AsyncCrudRepository[T, ID], Generic[T, ID]):
 
     async def delete_by_id(self, entity_id: ID) -> bool:
         current_document = await self.find_by_id(entity_id)
-        if current_document:
-            # XXX TODO Remover
-            ...
+        
+        if not current_document:
+            # return None
+            raise NotFoundException(
+                details=[
+                    {
+                        "message": "Document not found",
+                        "location": "path",
+                        "slug": "document_not_found",
+                        "field": self.key_name,
+                        "ctx": {"entity_id": entity_id},
+                    }
+                ]
+            )
+
+        self.memory = [doc for doc in self.memory if doc.get(self.key_name) != entity_id]

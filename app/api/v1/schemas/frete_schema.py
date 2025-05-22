@@ -1,8 +1,9 @@
 from app.api.common.schemas import ResponseEntity, SchemaType
+from pydantic import Field
 
 class FreteSchema(SchemaType):
-    seller_id: str
-    sku: str
+    seller_id: str = Field(..., min_length=1)
+    sku: str = Field(..., min_length=1)
     valor_frete: int
 
 class FreteResponse(FreteSchema, ResponseEntity):
