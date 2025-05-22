@@ -1,98 +1,152 @@
-# 🚚 pc-frete  
+# 🚚 pc-frete
 
 ## 📦 Projeto de Frete para E-commerce
-Este projeto tem como objetivo representar **a parte de frete** dentro de um sistema de e-commerce. Ele simula a lógica envolvida no cálculo, exibição e gerenciamento do frete de produtos em uma loja virtual.
+
+Este projeto representa o **módulo de frete** de um sistema de e-commerce. Ele simula a lógica envolvida no cálculo, exibição e gerenciamento do frete de produtos em uma loja virtual.
 
 ## 🎯 Objetivo
-Construir um módulo independente que lida com tudo relacionado ao frete de pedidos online, de forma integrada e flexível, podendo ser usado em diferentes plataformas de e-commerce.
+
+Desenvolver um módulo independente e reutilizável para lidar com o frete de pedidos online, de forma flexível e integrada a diferentes plataformas.
 
 ## 👥 Participantes
 
-- Maria Cecília
-- Guilherme Gabriel
-- Victor Hugo
-- Felipe Andrade
+* Maria Cecília
+* Guilherme Gabriel
+* Victor Hugo
+* Felipe Andrade
 
 ## 💻 Tecnologias
-Este projeto foi construído usando várias tecnologias chaves para garantir performance, segurança e facilidade de uso:
 
-* **Python 3.12**: Escolhido por sua simplicidade e poderosas capacidades de programação.
-* **FastAPI**: Uma moderna e rápida (altas performances) web framework para Python, que é ideal para a construção de APIs.
-* Uvicorn: Utilizado para rodar aplicações web assíncronas em Python.
-* Make: (Automação de tarefas no Linux)
-* Outras dependências listadas em requirements
+Este projeto utiliza tecnologias modernas para garantir performance, segurança e escalabilidade:
 
-## 📦 Clonando o Repositório
+* **Python 3.12**
+* **FastAPI**: Framework moderno e rápido para construção de APIs.
+* **Uvicorn**: Servidor ASGI leve e rápido.
+* **Make**: Automatização de tarefas.
+* **SonarQube**: Ferramenta de análise estática de código.
+* Outras dependências listadas em `requirements`.
 
-```sh
+---
+
+## 🚀 Clonando o Repositório
+
+```bash
 git clone https://github.com/projeto-carreira-luizalabs-2025/pc-frete
-```
-
-## ✨ Configuração do ambiente local (Linux 🐧)
-
-Todos os comandos serão via terminal.
-
-Depois de clonar o projeto, acesse o diretório:
-
-```sh
 cd pc-frete
 ```
 
-Crie o [ambiente virtual](https://docs.python.org/3.12/tutorial/venv.html)
-para instalar as bibliotecas e trabalharmos com o projeto:
+---
 
-```sh
-make build-venv
-```
+## 🛠️ Configuração do Ambiente Local (Linux)
 
-Uma vez criado o ambiente virtual do Python, você precisa ativá-lo
+1. Crie o ambiente virtual:
 
-```sh
-source venv/bin/activate
-```
+   ```bash
+   make build-venv
+   ```
 
-Quaisquer comandos daqui para frente, iremos considerar que você está dentro
-do ambiente virtual `(venv)`.
+2. Ative o ambiente virtual:
 
-Instale as bibliotecas necessárias para o seu projeto.
+   ```bash
+   source venv/bin/activate
+   ```
 
-```sh
-make requirements-dev
-```
+3. Instale as dependências:
 
-## ⭐  Formatação de lint e código
+   ```bash
+   make requirements-dev
+   ```
 
-Para executar a validação do lint, execute:
+---
+
+## ✨ Lint e Formatação de Código
+
+Para validar o lint:
+
 ```bash
 make lint
 ```
 
-## ▶️ Execução
+---
 
-1️⃣ Configure o arquivo de env:
+## ▶️ Execução da API
+
+1. Copie o arquivo `.env`:
+
+   ```bash
+   cp devtools/dotenv.dev .env
+   ```
+
+2. Rode o servidor:
+
+   ```bash
+   make run-dev
+   ```
+
+3. Acesse a documentação:
+
+   * Swagger: [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+   * ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+---
+
+## 🐳 SonarQube com Docker
+
+1. Suba o SonarQube:
+
+   ```bash
+   sudo docker-compose -f ./devtools/docker/docker-compose-sonar.yml up
+   ```
+
+2. Acesse o SonarQube em: [http://localhost:9000](http://localhost:9000)
+   Crie um **token de autenticação** no seu perfil.
+
+3. Copie o token gerado e adicione no arquivo `sonar-project.properties`:
+
+   ```properties
+   sonar.login=<seu_token_aqui>
+   ```
+
+4. Instale o SonarScanner CLI manualmente:
+
+   ```bash
+   wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+   unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+   export PATH="$PWD/sonar-scanner-5.0.1.3006-linux/bin:$PATH"
+   ```
+
+5. Execute a análise:
+
+   ```bash
+   sonar-scanner
+   ```
+
+---
+
+## 🐳 Build e Execução via Docker
+
+### Build da imagem
+
 ```bash
-cp devtools/dotenv.dev .env
+sudo docker build -f ./devtools/docker/Dockerfile -t pc/frete .
 ```
 
-2️⃣ Rodar a API
+### Rodar a aplicação
+
 ```bash
-make run-dev
+sudo docker run --rm -p 8000:8000 pc/frete
 ```
-## Acesse a documentação da API:
-- Swagger UI: http://localhost:8000/api/docs
-- ReDoc: http://localhost:8000/redoc
 
-## Contribuições e Atualizações
-O projeto está aberto a contribuições e atualizações da comunidade. O processo para contribuições é o seguinte:
+---
 
-* **Pull Requests**: Contribuições devem ser submetidas como pull requests.
-* **Code Review**: Cada pull request passará por um code review detalhado pela equipe. Isso garante que o código esteja alinhado com os padrões de qualidade e funcionamento do projeto.
-* **Incorporação de Mudanças**: Após a aprovação no code review, as mudanças serão integradas ao código principal.
+## 💡 Recursos Úteis
 
-## 📖 Recursos úteis
+* [Conventional Commits](https://www.conventionalcommits.org)
 
-- [Conventional Commits](https://www.conventionalcommits.org)
+---
 
-## 👍 Merge Requests
+## 👍 Contribuições
 
-- Fluxo de desenvolvimento e entrega contínua documentado no Kanban.
+* Contribuições devem ser feitas via **Pull Request**.
+* Todo PR passará por **Code Review** pela equipe.
+* Após aprovação, as mudanças serão integradas ao repositório principal.
