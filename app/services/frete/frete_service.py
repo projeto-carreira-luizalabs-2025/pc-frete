@@ -6,7 +6,7 @@ from ...models import Frete
 from ...repositories import FreteRepository
 from ..base import CrudService
 from ...api.common.schemas import Paginator
-from .frete_exceptions import FreteAlreadyExistsException
+from .frete_exceptions import FreteAlreadyExistsException, FreteNotFoundException
 
 class FreteService(CrudService[Frete, UUID]):
     """
@@ -41,21 +41,9 @@ class FreteService(CrudService[Frete, UUID]):
         :param seller_id: Identificador do vendedor.
         :param sku: Código do produto.
         :return: Instância de Frete encontrada.
-        :raises NotFoundException: Se não encontrar o fretes.
+        :raises FreteNotFoundException: Se não encontrar o frete.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
-        if frete_encontrado is None:
-            raise NotFoundException(
-                details=[
-                    ErrorDetail(
-                        message="Frete para produto não encontrado.",
-                        location="path",
-                        slug="frete_nao_encontrado",
-                        field="sku",
-                        ctx={"seller_id": seller_id, "sku": sku},
-                    )
-                ]
-            )
+        frete_encontrado = await self._validate_frete_encontrado(seller_id, sku)
         return frete_encontrado
 
     async def create_frete(self, frete_create) -> Frete:
@@ -83,20 +71,7 @@ class FreteService(CrudService[Frete, UUID]):
         :raises NotFoundException: Se não encontrar o frete.
         :raises BadRequestException: Se valores inválidos forem informados.
         """
-        frete_existente = await self.find_by_seller_id_and_sku(seller_id, sku)
-
-        if frete_existente is None:
-            raise NotFoundException(
-                details=[
-                    ErrorDetail(
-                        message="Frete para produto não encontrado.",
-                        location="path",
-                        slug="frete_nao_encontrado",
-                        field="sku",
-                        ctx={"seller_id": seller_id, "sku": sku},
-                    )
-                ]
-            )
+        frete_existente = await self._validate_frete_encontrado(seller_id, sku)
 
         self._validate_fretes_positivos(frete_update)
     
@@ -104,7 +79,7 @@ class FreteService(CrudService[Frete, UUID]):
         frete_atualizado = {
             "seller_id": seller_id,
             "sku": sku,
-            "valor_frete": frete_update.novo_valor_frete
+            "valor": frete_update.valor
         }
         
         # Usa o ID do dicionário
@@ -118,19 +93,7 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises NotFoundException: Se o frete não for encontrado.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
-        if frete_encontrado is None:
-            raise NotFoundException(
-                details=[
-                    ErrorDetail(
-                        message="Frete para produto não encontrado.",
-                        location="path",
-                        slug="frete_nao_encontrado",
-                        field="sku",
-                        ctx={"seller_id": seller_id, "sku": sku},
-                    )
-                ]
-            )
+        await self._validate_frete_encontrado(seller_id, sku)
         await self.repository.delete_by_seller_id_and_sku(seller_id, sku)
 
     def _validate_fretes_positivos(self, frete):
@@ -140,16 +103,16 @@ class FreteService(CrudService[Frete, UUID]):
         :param frete: Objeto de frete a ser validado.
         :raises BadRequestException: Se o valor do frete for menor que zero.
         """
-        valor = getattr(frete, 'novo_valor_frete', getattr(frete, 'valor_frete', None))
+        valor = getattr(frete, 'valor', getattr(frete, 'valor', None))
     
         if valor is None:
             raise BadRequestException(
-                details=[ErrorDetail(message="Valor do frete não especificado.", location="body", slug="frete_invalido", field="valor_frete")]
+                details=[ErrorDetail(message="Valor do frete não especificado.", location="body", slug="frete_invalido", field="valor")]
             )
             
         if valor < 0:
             raise BadRequestException(
-                details=[ErrorDetail(message="frete deve ser maior que zero.", location="body", slug="frete_invalido", field="valor_frete")]
+                details=[ErrorDetail(message="frete deve ser maior que zero.", location="body", slug="frete_invalido", field="valor")]
             )
 
     async def _validate_frete_nao_existe(self, seller_id: str, sku: str):
@@ -163,5 +126,21 @@ class FreteService(CrudService[Frete, UUID]):
         frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
         if frete_encontrado:
             raise FreteAlreadyExistsException(message="Frete para produto já cadastrado.", location="body", slug="frete_invalido", field="sku")
+
+    async def _validate_frete_encontrado(self, seller_id: str, sku: str):
+        """
+        Verifica se existe um frete para o seller_id e sku informados.
+
+        :param seller_id: Identificador do vendedor.
+        :param sku: Código do produto.
+        :raises FreteNotFoundException: Se não existir frete cadastrado.
+        """
+        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        if not frete_encontrado:
+            raise FreteNotFoundException(
+                seller_id=seller_id,
+                sku=sku,
+            )
+        return frete_encontrado
 
 __all__ = ["FreteService"]
