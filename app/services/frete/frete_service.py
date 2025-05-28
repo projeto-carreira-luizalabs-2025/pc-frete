@@ -85,6 +85,30 @@ class FreteService(CrudService[Frete, UUID]):
         # Usa o ID do dicionário
         return await self.update(frete_existente["_id"], frete_atualizado)
 
+    async def replace_frete(self, seller_id: str, sku: str, frete_update) -> Frete:
+        """
+        Substitui completamente os dados de um frete existente.
+
+        :param seller_id: Identificador do vendedor.
+        :param sku: Código do produto.
+        :param frete_update: Objeto contendo os dados atualizados.
+        :return: Instância de Frete atualizada.
+        :raises FreteNotFoundException: Se não encontrar o frete.
+        :raises BadRequestException: Se os dados forem inválidos.
+        """
+        frete_existente = await self._validate_frete_encontrado(seller_id, sku)
+
+        self._validate_fretes_positivos(frete_update)
+
+        frete_dict = frete_update.model_dump()
+
+        frete_dict["seller_id"] = frete_update.seller_id
+        frete_dict["valor"] = frete_update.valor
+        frete_dict["sku"] = frete_update.sku
+
+        return await self.update(frete_existente["_id"], frete_dict)
+
+
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str):
         """
         Remove um frete baseado em seller_id e sku.

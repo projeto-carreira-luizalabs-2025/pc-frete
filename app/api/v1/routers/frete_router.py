@@ -76,6 +76,22 @@ async def update_frete_value(
 ):
     return await frete_service.update_frete_value(seller_id, sku, frete_update)
 
+# Substitui completamente os dados do frete
+@router.put(
+    "/{seller_id}/{sku}",
+    response_model=FreteResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Substituir completamente os dados do frete para um produto",
+)
+@inject
+async def replace_frete(
+    seller_id: str,
+    sku: str,
+    frete_data: FreteCreate,
+    frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
+):
+    return await frete_service.replace_frete(seller_id, sku, frete_data)
+
 # Deleta o frete de um produto
 @router.delete(
     "/{seller_id}/{sku}",
