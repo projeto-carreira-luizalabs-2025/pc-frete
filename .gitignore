@@ -155,3 +155,9 @@ cython_debug/
 
 # Visual Studio Code
 .vscode/
+
+# Sonar local
+.scannerwork/
+
+# Sonar Scanner
+sonar-scanner-5.0.1.3006-linux
