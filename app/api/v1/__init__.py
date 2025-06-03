@@ -4,7 +4,7 @@ from app.settings import api_settings
 
 SELLER_V1_PREFIX = "/seller/v1"
 
-router_selller = APIRouter(prefix=SELLER_V1_PREFIX)
+router_seller = APIRouter(prefix=SELLER_V1_PREFIX)
 
 
 def load_routes(router_seller: APIRouter):
@@ -14,4 +14,4 @@ def load_routes(router_seller: APIRouter):
         router_seller.include_router(frete_router)
 
 
-load_routes(router_selller)
+load_routes(router_seller)

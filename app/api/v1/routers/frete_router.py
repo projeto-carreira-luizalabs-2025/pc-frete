@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from app.services import FreteService
 
 
-router = APIRouter(prefix=FRETE_PREFIX, tags=["Fretes"])
+router = APIRouter(prefix=FRETE_PREFIX, tags=["Fretes V1"])
 
 # Busca todos os fretes
 @router.get(
