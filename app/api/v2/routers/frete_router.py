@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Annotated
+from typing import TYPE_CHECKING
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, status, Header, HTTPException
@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, status, Header, HTTPException
 from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
 from app.container import Container
 
-from ..schemas.frete_schema import FreteCreate, FreteResponse, FreteUpdate
+from ..schemas.frete_schema import FreteSchema, FreteResponse, FreteCreate, FreteCreateResponse, FreteUpdate, FreteUpdateResponse, FreteReplace, FreteReplaceResponse
 from . import FRETE_PREFIX
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ async def get(
     "/{sku}",
     response_model=FreteResponse,
     status_code=status.HTTP_200_OK,
-    summary="Recuperar frete por sku",
+    summary="Recuperar frete por seller_id e sku",
 )
 @inject
 async def get_by_seller_id_and_sku(
@@ -57,50 +57,49 @@ async def get_by_seller_id_and_sku(
 # Cria um frete para um produto
 @router.post(
     "",
-    response_model=FreteResponse,
+    response_model=FreteCreateResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Criar um frete para um produto",
 )
 @inject
 async def create(
-    frete: FreteCreate,
+    novo_frete: FreteCreate,
     seller_id: str = Depends(get_seller_id),
     frete_service: "FreteService" = Depends(Provide[Container.frete_service])
 ):
-    frete.seller_id = seller_id
+    frete = FreteSchema(seller_id=seller_id, sku=novo_frete.sku, valor=novo_frete.valor)
     return await frete_service.create_frete(frete)
 
-# Atualiza o valor do frete para um produto
+# Atualiza os dados informados de um frete para um produto
 @router.patch(
     "/{sku}",
-    response_model=FreteResponse,
+    response_model=FreteUpdateResponse,
     status_code=status.HTTP_200_OK,
-    summary="Atualizar o valor do frete para um produto",
+    summary="Atualizar os dados informados de um frete para um produto",
 )
 @inject
 async def update_frete_value(
     sku: str,
-    frete_update: FreteUpdate,
+    frete_data: FreteUpdate,
     seller_id: str = Depends(get_seller_id),
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
-    return await frete_service.update_frete_value(seller_id, sku, frete_update)
+    return await frete_service.update_frete_value(seller_id, sku, frete_data)
 
 # Substitui completamente os dados do frete
 @router.put(
     "/{sku}",
-    response_model=FreteResponse,
+    response_model=FreteReplaceResponse,
     status_code=status.HTTP_200_OK,
     summary="Substituir completamente os dados do frete para um produto",
 )
 @inject
 async def replace_frete(
     sku: str,
-    frete_data: FreteCreate,
+    frete_data: FreteReplace,
     seller_id: str = Depends(get_seller_id),
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
-    frete_data.seller_id = seller_id
     return await frete_service.replace_frete(seller_id, sku, frete_data)
 
 # Deleta o frete de um produto
