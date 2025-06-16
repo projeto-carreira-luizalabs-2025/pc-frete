@@ -33,9 +33,17 @@ async def get_seller_id(x_seller_id: str = Header(..., alias="x-seller-id")) -> 
 async def get(
     paginator: Paginator = Depends(get_request_pagination),
     seller_id: str = Depends(get_seller_id),
+    preco_less_than: int = None,
+    preco_greater_than: int = None,
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
     filters = {"seller_id": seller_id}
+    
+    if preco_less_than is not None:
+        filters["preco_less_than"] = preco_less_than
+    if preco_greater_than is not None:
+        filters["preco_greater_than"] = preco_greater_than
+
     results = await frete_service.find_all(paginator=paginator, filters=filters)
     return paginator.paginate(results=results)
 
