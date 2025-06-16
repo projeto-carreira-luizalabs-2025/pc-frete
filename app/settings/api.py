@@ -14,7 +14,7 @@ class PaginationConfig(BaseModel):
         description="Determina a quantidade padrão de registros a serem retornados",
     )
     max_limit: int = Field(
-        default=100,
+        default=50,
         description="Determina a quantidade máxima de registros a serem retornados",
     )
 

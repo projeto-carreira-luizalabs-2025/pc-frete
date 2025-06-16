@@ -32,8 +32,22 @@ class FreteService(CrudService[Frete, UUID]):
         :param filters: Dicionário de filtros para aplicar na busca (seller_id).
         :return: Lista de instâncias de Frete encontradas.
         """
-        return await self.repository.find_all(paginator=paginator, filters=filters)
-    
+        seller_id = filters.get("seller_id")
+        preco_min = filters.get("preco_greater_than")
+        preco_max = filters.get("preco_less_than")
+
+        # Busca todos os fretes com paginação
+        all_fretes = await self.repository.find_all(paginator=paginator, filters={"seller_id": seller_id} if seller_id else {})
+
+        # Filtros adicionais
+        filtered = [
+            frete for frete in all_fretes
+            if (preco_min is None or frete.valor >= preco_min) and
+            (preco_max is None or frete.valor <= preco_max)
+        ]
+
+        return filtered
+
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
         """
         Busca um fretes pelo seller_id e sku.
