@@ -24,6 +24,7 @@ Este projeto utiliza tecnologias modernas para garantir performance, segurança 
 * **Uvicorn**: Servidor ASGI leve e rápido.
 * **Make**: Automatização de tarefas.
 * **SonarQube**: Ferramenta de análise estática de código.
+* **MongoDB**: Banco de dados No-SQL baseado em documentos.
 * Outras dependências listadas em `requirements`.
 
 ---

@@ -4,6 +4,7 @@ from app.models import Frete
 from app.repositories import FreteRepository
 from app.services import FreteService, HealthCheckService
 from app.settings import AppSettings
+from app.integrations.database.mongo_client import MongoClient
 
 
 class Container(containers.DeclarativeContainer):
@@ -11,8 +12,13 @@ class Container(containers.DeclarativeContainer):
 
     settings = providers.Singleton(AppSettings)
 
+    mongo_client = providers.Singleton(MongoClient, config.app_db_url_mongo)
+
     # Repositórios
-    frete_repository = providers.Singleton(FreteRepository, key_name="id", model_class=Frete)
+    frete_repository = providers.Singleton(
+        FreteRepository, 
+        client=mongo_client,
+    )
 
     # Serviços
     health_check_service = providers.Singleton(

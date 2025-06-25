@@ -1,7 +1,7 @@
-from . import PersistableEntity
+from . import SelllerSkuUuidPersistableEntity
 
 
-class Frete(PersistableEntity):
+class Frete(SelllerSkuUuidPersistableEntity):
     seller_id: str
     sku: str
     valor: int

@@ -1,18 +1,20 @@
 import os
 
 import dotenv
-from fastapi import FastAPI
 
 from app.container import Container
 from app.settings import api_settings
+from typing import TYPE_CHECKING
 
 ENV = os.getenv("ENV", "production")
 is_dev = ENV == "dev"
 
 dotenv.load_dotenv(override=is_dev)
 
+if TYPE_CHECKING:
+    from fastapi import FastAPI
 
-def init() -> FastAPI:
+def init() -> "FastAPI":
     from app.api.api_application import create_app
     from app.api.router import routes as api_routes
 

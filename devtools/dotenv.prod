@@ -1,1 +1,1 @@
-ENV=prod
+APP_ENV=prod

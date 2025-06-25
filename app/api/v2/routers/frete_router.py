@@ -67,7 +67,7 @@ async def get_by_seller_id_and_sku(
     "",
     response_model=FreteCreateResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Criar um frete para um produto",
+    summary="Criar frete para um produto",
 )
 @inject
 async def create(
@@ -83,7 +83,7 @@ async def create(
     "/{sku}",
     response_model=FreteUpdateResponse,
     status_code=status.HTTP_200_OK,
-    summary="Atualizar os dados informados de um frete para um produto",
+    summary="Atualizar os dados informados do frete para um produto",
 )
 @inject
 async def update_frete_value(
@@ -114,7 +114,7 @@ async def replace_frete(
 @router.delete(
     "/{sku}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Excluir frete por sku",
+    summary="Excluir frete por seller_id e sku",
 )
 @inject
 async def delete_by_seller_id_and_sku(

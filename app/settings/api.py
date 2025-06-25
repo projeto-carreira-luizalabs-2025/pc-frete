@@ -22,6 +22,8 @@ class PaginationConfig(BaseModel):
 class ApiSettings(AppSettings):
     server_port: int = Field(default=8000, title="Porta da aplicação")
 
+    version: str = Field(default="v2", title="Versão da API") #TODO: Verificar versão correta
+
     openapi_path: str = Field(
         default="/openapi.json",
         title="Caminho para exportar o OpenAPI, deixar vazio para não exportar.",
