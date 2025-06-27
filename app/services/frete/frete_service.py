@@ -37,7 +37,7 @@ class FreteService(CrudService[Frete, UUID]):
         preco_max = filters.get("preco_less_than")
 
         # Busca todos os fretes com paginação
-        all_fretes = await self.repository.find_all(paginator=paginator, filters={"seller_id": seller_id} if seller_id else {})
+        all_fretes = await self.repository.find(paginator=paginator, filters={"seller_id": seller_id} if seller_id else {})
 
         # Filtros adicionais
         filtered = [
@@ -135,7 +135,7 @@ class FreteService(CrudService[Frete, UUID]):
         """
         frete_encontrado = await self._validate_frete_nao_existe(seller_id, sku)
         if frete_encontrado:
-            await self.repository.delete_by_seller_id_and_sku(seller_id, sku)
+            await self.repository.delete_by_sellerid_sku(seller_id, sku)
 
     def _validate_fretes_positivos(self, frete):
         """
@@ -162,7 +162,7 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises BadRequestException: Se já existir frete cadastrado.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        frete_encontrado = await self.repository.find_by_sellerid_sku(seller_id, sku)
         if frete_encontrado is not None:
             raise FreteAlreadyExistsException(message="Frete para produto já cadastrado.", location="body", slug="frete_invalido", field="sku")
 
@@ -174,7 +174,7 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises FreteNotFoundException: Se não existir frete cadastrado.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        frete_encontrado = await self.repository.find_by_sellerid_sku(seller_id, sku)
         if frete_encontrado is None:
             raise FreteNotFoundException(
                 seller_id=seller_id,

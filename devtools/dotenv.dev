@@ -1,2 +1,2 @@
-APP_ENV=dev
+ENV=dev
 APP_DB_URL=mongodb://admin:admin@localhost:27017/pc-frete-db?authSource=admin&connectTimeoutMS=1000&socketTimeoutMS=1000

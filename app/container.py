@@ -12,7 +12,7 @@ class Container(containers.DeclarativeContainer):
 
     settings = providers.Singleton(AppSettings)
 
-    mongo_client = providers.Singleton(MongoClient, config.app_db_url_mongo)
+    mongo_client = providers.Singleton(MongoClient, config.app_db_url)
 
     # Repositórios
     frete_repository = providers.Singleton(

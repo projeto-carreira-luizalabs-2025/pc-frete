@@ -4,7 +4,7 @@ from .base import BaseSettings
 
 
 class AppSettings(BaseSettings):
-    app_env: str = Field(..., description="Ambiente da aplicação")
+    env: str = Field(..., description="Ambiente da aplicação")
     app_version: str = Field("0.2.1", description="Versão da aplicação")
 
     app_name: str = Field(
