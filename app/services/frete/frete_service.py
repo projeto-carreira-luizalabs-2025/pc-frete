@@ -7,6 +7,7 @@ from ...repositories import FreteRepository
 from ..base import CrudService
 from ...api.common.schemas import Paginator
 from .frete_exceptions import FreteAlreadyExistsException, FreteNotFoundException
+from app.models.query_model import QueryModel
 
 class FreteService(CrudService[Frete, UUID]):
     """
@@ -24,7 +25,7 @@ class FreteService(CrudService[Frete, UUID]):
         """
         super().__init__(repository)
 
-    async def find_all(self, paginator: Paginator, filters: dict) -> list[Frete]:
+    async def find_all(self, paginator: Paginator, filters: QueryModel) -> list[Frete]:
         """
         Busca todos os fretes com paginação e filtros.
 
@@ -32,21 +33,11 @@ class FreteService(CrudService[Frete, UUID]):
         :param filters: Dicionário de filtros para aplicar na busca (seller_id).
         :return: Lista de instâncias de Frete encontradas.
         """
-        seller_id = filters.get("seller_id")
-        preco_min = filters.get("preco_greater_than")
-        preco_max = filters.get("preco_less_than")
-
-        # Busca todos os fretes com paginação
-        all_fretes = await self.repository.find(paginator=paginator, filters={"seller_id": seller_id} if seller_id else {})
-
-        # Filtros adicionais
-        filtered = [
-            frete for frete in all_fretes
-            if (preco_min is None or frete.valor >= preco_min) and
-            (preco_max is None or frete.valor <= preco_max)
-        ]
-
-        return filtered
+        return await self.repository.find(
+        filters=filters,
+        limit=paginator.limit,
+        offset=paginator.offset
+    )
 
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
         """

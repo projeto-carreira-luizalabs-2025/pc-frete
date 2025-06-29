@@ -1,5 +1,7 @@
 from app.api.common.schemas import ResponseEntity, SchemaType
 from pydantic import Field
+from typing import Optional
+from app.models.query_model import QueryModel
 
 class FreteBase(SchemaType):
     seller_id: str = Field(..., min_length=1)
@@ -36,3 +38,9 @@ class FreteReplace(SchemaType):
 
 class FreteReplaceResponse(FreteBase):
     """Resposta para a substituição de Fretes"""
+
+class FreteQueryModel(QueryModel):
+    """Query Model specifically for filtering Fretes."""
+    seller_id: Optional[str] = None
+    valor__le: Optional[int] = None # less than or equal to
+    valor__ge: Optional[int] = None # greater than or equal to

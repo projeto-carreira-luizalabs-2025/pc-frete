@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, status, Header, HTTPException
 from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
 from app.container import Container
 
-from ..schemas.frete_schema import FreteSchema, FreteResponse, FreteCreate, FreteCreateResponse, FreteUpdate, FreteUpdateResponse, FreteReplace, FreteReplaceResponse
+from ..schemas.frete_schema import FreteSchema, FreteResponse, FreteCreate, FreteCreateResponse, FreteUpdate, FreteUpdateResponse, FreteReplace, FreteReplaceResponse, FreteQueryModel
 from . import FRETE_PREFIX
 
 if TYPE_CHECKING:
@@ -33,17 +33,10 @@ async def get_seller_id(x_seller_id: str = Header(..., alias="x-seller-id")) -> 
 async def get(
     paginator: Paginator = Depends(get_request_pagination),
     seller_id: str = Depends(get_seller_id),
-    preco_less_than: int = None,
-    preco_greater_than: int = None,
+    filters: FreteQueryModel = Depends(),
     frete_service: "FreteService" = Depends(Provide[Container.frete_service]),
 ):
-    filters = {"seller_id": seller_id}
-    
-    if preco_less_than is not None:
-        filters["preco_less_than"] = preco_less_than
-    if preco_greater_than is not None:
-        filters["preco_greater_than"] = preco_greater_than
-
+    filters.seller_id = seller_id
     results = await frete_service.find_all(paginator=paginator, filters=filters)
     return paginator.paginate(results=results)
 
