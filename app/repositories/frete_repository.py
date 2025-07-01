@@ -1,12 +1,6 @@
-from uuid import UUID
-
-from app.common.exceptions import NotFoundException
-
 from ..models import Frete
 from .base.mongo_mktplace_repository import MongoMktplaceRepository
 from app.integrations.database.mongo_client import MongoClient
-from ..api.common.schemas import Paginator
-from typing import List
 
 class FreteRepository(MongoMktplaceRepository[Frete]):
 

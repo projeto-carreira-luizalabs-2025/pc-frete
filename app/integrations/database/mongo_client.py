@@ -29,7 +29,10 @@ class MongoDB:
 class MongoClient:
     def __init__(self, mongo_url: MongoDsn):
         self.mongo_url = mongo_url
-        self.motor_client: AgnosticClient = AsyncIOMotorClient(str(mongo_url))
+        self.motor_client: AgnosticClient = AsyncIOMotorClient(
+            str(mongo_url),
+            uuidRepresentation='standard'
+        )
         self.motor_client.get_io_loop = asyncio.get_event_loop
 
     def close(self):
@@ -44,7 +47,8 @@ class MongoClient:
     def get_default_database(self) -> MongoDB:
         type_registry = TypeRegistry([SetCodec()])
         codec_options: CodecOptions = CodecOptions(
-            type_registry=type_registry, uuid_representation=UuidRepresentation.STANDARD, tz_aware=True
+            type_registry=type_registry, 
+            tz_aware=True
         )
         return MongoDB(self.motor_client.get_default_database(codec_options=codec_options))
 

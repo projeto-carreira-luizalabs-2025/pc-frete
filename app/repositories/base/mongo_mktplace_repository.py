@@ -1,3 +1,4 @@
+import uuid
 from typing import Generic, List, Type, TypeVar
 from uuid import UUID
 
@@ -27,14 +28,15 @@ class MongoMktplaceRepository(AsyncMktplaceRepository[T], Generic[T]):
         self.model_class = model_class
 
     async def create(self, entity: T) -> T:
-        entity_dict = entity.model_dump(by_alias=True)
+        entity_dict = entity.model_dump(exclude={"id"})
+        entity_dict["_id"] = entity.id
+        
+        # Set audit timestamps
         when = utcnow()
         entity_dict["created_at"] = when
         entity_dict["updated_at"] = when
 
-        created = await self.collection.insert_one(entity_dict)
-        # XXX Rever pegar chave do banco.
-        entity_dict["_id"] = created.inserted_id
+        await self.collection.insert_one(entity_dict)
         return self.model_class(**entity_dict)
 
     async def find_one(self, filter: dict) -> T | None:
@@ -63,6 +65,8 @@ class MongoMktplaceRepository(AsyncMktplaceRepository[T], Generic[T]):
 
         entities = []
         async for document in cursor:
+            if "_id" in document:
+                document["id"] = document.pop("_id")
             entities.append(self.model_class(**document))
         return entities
 
