@@ -15,7 +15,6 @@ Q = TypeVar("Q", bound=QueryModel)
 
 DEFAULT_USER = "system"
 
-
 class AsyncMemoryRepository(AsyncCrudRepository[T], Generic[T]):
 
     def __init__(self, client: MongoClient, db_name: str, collection_name: str, model_class: Type[T]):

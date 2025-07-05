@@ -27,26 +27,23 @@ class FreteService(CrudService[Frete, UUID]):
     async def find_all(self, paginator: Paginator, filters: dict) -> list[Frete]:
         """
         Busca todos os fretes com paginação e filtros.
-
-        :param paginator: Objeto de paginação para controlar os resultados.
-        :param filters: Dicionário de filtros para aplicar na busca (seller_id).
-        :return: Lista de instâncias de Frete encontradas.
         """
-        seller_id = filters.get("seller_id")
-        preco_min = filters.get("preco_greater_than")
-        preco_max = filters.get("preco_less_than")
+        query_filters = {}
 
-        # Busca todos os fretes com paginação
-        all_fretes = await self.repository.find_all(paginator=paginator, filters={"seller_id": seller_id} if seller_id else {})
+        if filters.get("seller_id"):
+            query_filters["seller_id"] = filters["seller_id"]
+        if filters.get("preco_greater_than") is not None:
+            query_filters["valor"] = {"$gte": filters["preco_greater_than"]}
+        if filters.get("preco_less_than") is not None:
+            query_filters.setdefault("valor", {})
+            query_filters["valor"]["$lte"] = filters["preco_less_than"]
 
-        # Filtros adicionais
-        filtered = [
-            frete for frete in all_fretes
-            if (preco_min is None or frete.valor >= preco_min) and
-            (preco_max is None or frete.valor <= preco_max)
-        ]
-
-        return filtered
+        fretes = await self.repository.find_all(
+            paginator=paginator,
+            filters=query_filters
+        )
+        
+        return fretes
 
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
         """
@@ -57,8 +54,13 @@ class FreteService(CrudService[Frete, UUID]):
         :return: Instância de Frete encontrada.
         :raises FreteNotFoundException: Se não encontrar o frete.
         """
-        frete_encontrado = await self._validate_frete_nao_existe(seller_id, sku)
-        return Frete(**frete_encontrado)
+
+        fretes = await self._validate_frete_nao_existe(seller_id, sku)
+
+        if not fretes:
+            raise FreteNotFoundException(seller_id=seller_id, sku=sku)
+
+        return fretes[0]  # ou como preferir lidar com múltiplos resultados
 
     async def create_frete(self, frete_create) -> Frete:
         """
@@ -68,7 +70,6 @@ class FreteService(CrudService[Frete, UUID]):
         :return: Instância de Frete criada.
         :raises BadRequestException: Se já existir fretes para o produto ou valores inválidos.
         """
-        await self._validate_frete_existe(frete_create.seller_id, frete_create.sku)
         self._validate_fretes_positivos(frete_create)
         # Converte FreteCreate para Frete, gerando o id automaticamente
         frete = Frete(**frete_create.model_dump())
@@ -174,7 +175,10 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises FreteNotFoundException: Se não existir frete cadastrado.
         """
-        frete_encontrado = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        frete_encontrado = await self.repository.find(
+            filters={"seller_id": seller_id, "sku": sku}
+        )
+
         if frete_encontrado is None:
             raise FreteNotFoundException(
                 seller_id=seller_id,
