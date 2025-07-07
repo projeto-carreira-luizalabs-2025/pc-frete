@@ -49,4 +49,25 @@ class FreteRepository(AsyncMemoryRepository[Frete]):
             raise NotFoundException()
         await self.collection.delete_one({"seller_id": seller_id, "sku": sku})
 
+    async def update(self, entity_id: str, entity: Frete) -> Frete:
+        """
+        Atualiza um frete no MongoDB usando o ID.
+        """
+        data = entity.model_dump(exclude_unset=True)
+
+        result = await self.collection.update_one(
+            {"_id": entity_id},
+            {"$set": data}
+        )
+
+        if result.matched_count == 0:
+            raise NotFoundException()
+
+        updated = await self.find_by_id(entity_id)
+        if not updated:
+            raise NotFoundException()
+        
+        return updated
+
+
 __all__ = ["FreteRepository"]

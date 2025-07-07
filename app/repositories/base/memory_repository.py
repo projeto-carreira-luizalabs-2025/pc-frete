@@ -2,6 +2,7 @@ from typing import Any, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel
+from bson import ObjectId
 
 from app.common.datetime import utcnow
 from app.integrations.database.mongo_client import MongoClient
@@ -12,6 +13,7 @@ from .async_crud_repository import AsyncCrudRepository
 T = TypeVar("T", bound=BaseModel)
 ID = TypeVar("ID", bound=UUID)
 Q = TypeVar("Q", bound=QueryModel)
+
 
 DEFAULT_USER = "system"
 
@@ -42,8 +44,15 @@ class AsyncMemoryRepository(AsyncCrudRepository[T], Generic[T]):
         await self.collection.insert_one(entity_dict)
         return self.model_class(**entity_dict)
 
-    async def find_by_id(self, seller_id: Any) -> Optional[T]:
-        result = await self.collection.find_one({"seller_id": str(seller_id)})
+    async def find_by_id(self, entity_id: Any) -> Optional[T]:
+        # converter entity_id para ObjectId se possível
+        try:
+            oid = ObjectId(entity_id)
+        except Exception:
+            # se não for um ObjectId válido, usa como string mesmo
+            oid = entity_id
+
+        result = await self.collection.find_one({"_id": oid})
         if result:
             return self.model_class(**result)
         return None

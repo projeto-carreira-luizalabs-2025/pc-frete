@@ -70,38 +70,32 @@ class FreteService(CrudService[Frete, UUID]):
         :return: Instância de Frete criada.
         :raises BadRequestException: Se já existir fretes para o produto ou valores inválidos.
         """
+        # Valida se já existe frete para o seller_id e sku informados
+        await self._validate_frete_existe(frete_create.seller_id, frete_create.sku)
         self._validate_fretes_positivos(frete_create)
+        
         # Converte FreteCreate para Frete, gerando o id automaticamente
         frete = Frete(**frete_create.model_dump())
         return await self.create(frete)
 
     async def update_frete_value(self, seller_id: str, sku: str, frete_update) -> Frete:
-        """
-        Atualiza um frete existente com os dados informados.
-
-        :param seller_id: Identificador do vendedor.
-        :param sku: Código do produto.
-        :param frete_update: Objeto contendo os dados do frete a serem atualizados.
-        :return: Instância de Frete atualizada.
-        :raises NotFoundException: Se não encontrar o frete.
-        :raises BadRequestException: Se valores inválidos forem informados.
-        """
         frete_existente = await self._validate_frete_nao_existe(seller_id, sku)
-
         self._validate_fretes_positivos(frete_update)
-    
-        # Cria um dicionário com apenas o campo a ser atualizado
-        frete_atualizado = frete_existente
-        
-        if frete_update.seller_id:
-            frete_atualizado["seller_id"] = frete_update.seller_id
-        if frete_update.sku:
-            frete_atualizado["sku"] = frete_update.sku
-        if frete_update.valor:
-            frete_atualizado["valor"] = frete_update.valor
-        
-        # Usa o ID do dicionário
-        return await self.update(frete_existente["_id"], frete_atualizado)
+
+        frete = frete_existente[0]
+        id = frete.id
+
+        # Pega apenas os campos que vieram no PATCH
+        updates = frete_update.model_dump(exclude_unset=True)
+
+        # Cria uma nova instância com os dados atualizados
+        frete_atualizado = frete.model_copy(update=updates)
+
+        # Atualiza no banco (essa função precisa salvar e retornar o Frete atualizado)
+        updated = await self.update(id, frete_atualizado)
+
+        # Retorna a versão final
+        return updated
 
     async def replace_frete(self, seller_id: str, sku: str, frete_update) -> Frete:
         """
@@ -175,15 +169,15 @@ class FreteService(CrudService[Frete, UUID]):
         :param sku: Código do produto.
         :raises FreteNotFoundException: Se não existir frete cadastrado.
         """
-        frete_encontrado = await self.repository.find(
+        fretes_encontrados = await self.repository.find(
             filters={"seller_id": seller_id, "sku": sku}
         )
 
-        if frete_encontrado is None:
+        if fretes_encontrados is None:
             raise FreteNotFoundException(
                 seller_id=seller_id,
                 sku=sku,
             )
-        return frete_encontrado
+        return fretes_encontrados
 
 __all__ = ["FreteService"]
