@@ -1,20 +1,28 @@
+# container.py
+from app.integrations.database.mongo_client import MongoClient
 from dependency_injector import containers, providers
 
-from app.models import Frete
 from app.repositories import FreteRepository
 from app.services import FreteService, HealthCheckService
-from app.settings import AppSettings
-
+from app.settings.app import AppSettings
+from app.settings.app import settings as settings_instance
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
+    config.from_pydantic(settings_instance)
+    settings = providers.Singleton(AppSettings.model_validate, config)
 
-    settings = providers.Singleton(AppSettings)
+    mongo_client = providers.Singleton(
+        MongoClient,
+        mongo_url=config.app_db_url_mongo,
+    )
 
-    # Repositórios
-    frete_repository = providers.Singleton(FreteRepository, key_name="id", model_class=Frete)
+    frete_repository = providers.Singleton(
+        FreteRepository,
+        client=mongo_client,
+        db_name=config.MONGO_DB,
+    )
 
-    # Serviços
     health_check_service = providers.Singleton(
         HealthCheckService, checkers=config.health_check_checkers, settings=settings
     )

@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from app.common.exceptions import NotFoundException
@@ -7,35 +8,66 @@ from .base import AsyncMemoryRepository
 from ..api.common.schemas import Paginator
 from typing import List
 
-class FreteRepository(AsyncMemoryRepository[Frete, UUID]):
+from app.integrations.database.mongo_client import MongoClient
 
-    async def find_by_name(self, name: str) -> Frete:
-        """
-        Busca um alguma coisa pelo nome.
-        """
-        result = next((s for s in self.memory if s["name"] == name), None)
-        if result:
-            return result
-        raise NotFoundException()
+class FreteRepository(AsyncMemoryRepository[Frete]):
+
+    COLLECTION_NAME = "fretes"
+
+    def __init__(self,client: "MongoClient", db_name: str):
+        super().__init__(client, db_name=db_name, collection_name=self.COLLECTION_NAME, model_class=Frete)
 
     async def find_all(self, paginator: Paginator, filters: dict) -> List[Frete]:
         """
         Busca todos os fretes com paginação e filtragem por seller_id.
         """
-        return await super().find(filters=filters, limit=paginator.limit, offset=paginator.offset, sort=paginator.get_sort_order())
+        return await self.find(
+            filters=filters,
+            limit=paginator.limit,
+            offset=paginator.offset,
+            sort=paginator.get_sort_order()
+        )
 
-    async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete:
+    async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Frete | None:
         """
         Busca um frete pela junção de seller_id + sku
         """
-        result = next((frete for frete in self.memory if frete["seller_id"] == seller_id and frete["sku"] == sku), None)
-        return result
+        frete = await self.find(
+            filters={"seller_id": seller_id, "sku": sku}
+        )
+        if not frete:
+            return None
+        return frete[0]  # Retorna o primeiro resultado, se houver
 
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str):
         """
         Remove um frete da memória com base no seller_id e sku.
         """
-        self.memory = [frete for frete in self.memory if not (frete["seller_id"] == seller_id and frete["sku"] == sku)]
+
+        frete = await self.find_by_seller_id_and_sku(seller_id, sku)
+        if not frete:
+            raise NotFoundException()
+        await self.collection.delete_one({"seller_id": seller_id, "sku": sku})
+
+    async def update(self, entity_id: str, entity: Frete) -> Frete:
+        """
+        Atualiza um frete no MongoDB usando o ID.
+        """
+        data = entity.model_dump(exclude_unset=True)
+
+        result = await self.collection.update_one(
+            {"_id": entity_id},
+            {"$set": data}
+        )
+
+        if result.matched_count == 0:
+            raise NotFoundException()
+
+        updated = await self.find_by_id(entity_id)
+        if not updated:
+            raise NotFoundException()
+        
+        return updated
 
 
 __all__ = ["FreteRepository"]

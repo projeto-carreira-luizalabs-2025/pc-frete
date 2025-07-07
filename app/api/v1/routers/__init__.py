@@ -1,1 +1,0 @@
-FRETE_PREFIX = "/fretes"

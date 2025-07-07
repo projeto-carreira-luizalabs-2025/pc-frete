@@ -45,6 +45,7 @@ async def get(
         filters["preco_greater_than"] = preco_greater_than
 
     results = await frete_service.find_all(paginator=paginator, filters=filters)
+    
     return paginator.paginate(results=results)
 
 # Busca fretes por "seller_id" e "sku"

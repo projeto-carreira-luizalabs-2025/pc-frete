@@ -1,8 +1,9 @@
 from typing import Any, Generic, TypeVar
 
 from app.api.common.schemas import Paginator
-from app.common.exceptions import NotFoundException
+from app.common.exceptions.not_found_exception import NotFoundException
 from app.models.base import PersistableEntity
+from app.models.frete_model import Frete
 from app.repositories import AsyncCrudRepository
 
 T = TypeVar("T", bound=PersistableEntity)
@@ -10,7 +11,7 @@ ID = TypeVar("ID")
 
 
 class CrudService(Generic[T, ID]):
-    def __init__(self, repository: AsyncCrudRepository[T, ID]):
+    def __init__(self, repository: AsyncCrudRepository[T]):
         self.repository = repository
 
     @property
@@ -25,11 +26,8 @@ class CrudService(Generic[T, ID]):
     async def create(self, entity: Any) -> T:
         return await self.repository.create(entity)
 
-    async def find_by_id(self, entity_id: ID, can_raise_exception: bool = True) -> T | None:
-        data = await self.repository.find_by_id(entity_id)
-        if data is None and can_raise_exception:
-            raise NotFoundException()
-        return data
+    async def find_by_id(self, entity_id: ID) -> T | None:
+        return await self.repository.find_by_id(entity_id)
 
     async def find(self, paginator: Paginator, filters: dict) -> list[T]:
         return await self.repository.find(
